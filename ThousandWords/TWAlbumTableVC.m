@@ -31,6 +31,22 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    NSFetchRequest *fetchReqest = [NSFetchRequest fetchRequestWithEntityName:@"Album"];
+    fetchReqest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"date" ascending:YES]];
+    
+    id delegate = [[UIApplication sharedApplication] delegate];
+    NSManagedObjectContext *context = [delegate managedObjectContext];
+    
+    NSError *error = nil;
+    NSArray *fetchedAlbums = [context executeFetchRequest:fetchReqest error:&error];
+    self.albums = [fetchedAlbums mutableCopy];
+    [self.tableView reloadData];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -75,7 +91,7 @@
 - (void)alertView:(UIAlertController *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     if (buttonIndex == 1){
-        NSString *alertText = [alertView textFieldAtIndex:0].text;
+        NSString *alertText = [alertView.textFields objectAtIndex:0].text
         [self.albums addObject:[self albumWithName:alertText]];
         [self.tableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:[self.albums count] - 1 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
     }
@@ -91,15 +107,17 @@
     return [self.albums count];
 }
 
-/*
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     
     // Configure the cell...
+    Album *selectedAlbum = self.albums[indexPath.row];
+    cell.textLabel.text = selectedAlbum.name;
     
     return cell;
 }
-*/
+
 
 /*
 // Override to support conditional editing of the table view.
